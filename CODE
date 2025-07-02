@@ -1,0 +1,192 @@
+##Key Analysis & Business Questions Solved
+
+#1. Countries with sales between 75k and 200k in 2015 (Europe & Asia Pacific)
+
+#You filtered the dataset for 2015 and specified markets, then grouped by country and summed sales. You filtered the result based on sales range.
+
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import openpyxl
+FileName='superstore.xlsx'
+Df1=pd.read_excel('superstore.xlsx')
+print(Df1)
+'''
+#Understand data
+#data audit
+#First % rows
+print(Df1.head())
+#last 5 rows
+#print(Df1.tail())
+#column in dataset
+print(Df1.columns)
+
+#summary of the dataset
+print(Df1.info())
+#Descriptive statistics
+print(Df1.describe())
+#The above will show only for numeric columns
+
+#check for missing values
+print(Df1.isnull())
+print(Df1.isnull().sum())
+
+#number of rows and columns in your dataset
+print(Df1.shape)
+'''
+
+print(Df1['order_date'].dtype)
+#Exploratary data analysis
+#print minimum date
+print(Df1["order_date"].min())
+#print minimum date
+print(Df1['order_date'].max())
+
+Df1['month_year']=Df1['order_date'].apply(lambda x: x.strftime('%Y-%m'))
+print(Df1['month_year'])
+
+#create a group by month - year
+Df1['year']=Df1['order_date'].apply(lambda x:x.strftime('%Y'))
+print(Df1['year'])
+Df_Trend2=pd.DataFrame(Df1.groupby("year")['sales'].sum().reset_index())
+print(Df_Trend2)
+
+Colors=['red','blue','grey','green']
+plt.pie(Df_Trend2['sales'],labels=Df_Trend2['year'],\
+        colors=Colors,autopct='%1.1f%%')
+plt.title('Yearly Sales')
+plt.show()
+
+Df1['month_year']=Df1['order_date'].apply(lambda x:x.strftime('%Y-%m'))
+print(Df1['month_year'])
+Df2=Df1.groupby('month_year')['sales'].sum().reset_index()
+
+plt.tight_layout()
+plt.xticks(rotation=-90)
+plt.plot(Df2['month_year'],Df2['sales'])
+plt.show()
+
+
+#countries with sales b\w 75k and 200k for year 2015 for market Europe and asia pacific
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+FileName = 'superstore.xlsx'
+Df1 = pd.read_excel(FileName)
+"""
+df_2012 = Df1[(Df1['ship_date'].dt.year == 2012) & (Df1['order_priority'] == 'Critical') & (Df1['ship_mode'] == 'Second Class')]
+df_2012['month'] = df_2012['ship_date'].dt.month
+monthly_shipping_cost = df_2012.groupby('month')['shipping_cost'].sum().reset_index()
+print(monthly_shipping_cost)
+#Count of customer who bought products from category furniture and
+# segmemt home office in year 2013
+Filename = 'superstore.xlsx'
+Df1 = pd.read_excel(Filename)
+Df2 = Df1[(Df1['order_date'].dt.year == 2013) &
+              (Df1['category'] == 'Furniture') &
+              (Df1['segment'] == 'Home Office')]
+customer_count = df_2012['customer_name'].unique()
+print('Count of customers:',customer_count)
+
+
+#monthly shipping cost for ship year 2012 for order
+# priority critical and ship mode second class
+df_2015 = Df1[(Df1['year'] == 2012) &
+                    (Df1['market'].isin(['Europe', 'Asia Pacific'])) &
+                    (Df1['sales'].between(75000, 200000))]
+countries_sales = df_2015[['country', 'sales']]
+print(countries_sales)
+
+
+
+
+#2. Top 20 Customers by Order Count for Selected Year and Segment
+
+#Filtered by year and segment, then grouped by customer_name, counting their orders, and sorted in descending order to get the top 20.
+
+
+
+FileName = 'superstore.xlsx'
+Df1 = pd.read_excel (FileName)
+
+df_customer = Df1[(Df1['year'] == 2012) & (Df1['segment'] == 'Consumer')]
+top_customers = df_customer.groupby('customer_name').size().reset_index(name='Order Count')
+top_customers = top_customers.sort_values('Order Count', ascending=False)
+top_customers = top_customers.head(20)
+print("Top 20 customer",top_customers)
+
+
+
+
+#3.  Top 3 Products in 2014 by Profit
+
+#Filtered the data for 2014, grouped by product_name, and summed profit. The top 3 profitable products were displayed using a bar chart.
+
+
+Df_2014=Df1[Df1["year"]==2014]
+Top_3_products_yr=pd.DataFrame(Df1.groupby('product_name')['profit'].sum()).reset_index()
+Top_3_products_yr=Top_3_products_yr.nlargest(3,'profit')
+print(Top_3_products_yr)
+Top_3_products_yr.plot(x='product_name',kind='bar')
+plt.title('Top 3 profitable product with sales in the year 2014')
+plt.xticks(rotation=75)
+plt.show()
+
+
+
+#4. Top 3 Customers in Corporate Segment (California)
+
+#Filtered by segment and state, then summed sales per customer_name. Top 3 high-value customers were identified.
+
+#Top 3 customers of the Corporate Segment in the state of California
+
+
+Corp_California = Df1[(Df1['segment'] == 'Corporate') & (Df1['state'] == 'California')]
+
+top_3_customers = Corp_California .groupby('customer_name').agg({'sales': 'sum'}).reset_index()
+
+top_3_customers = top_3_customers.sort_values(by='sales', ascending=False).head(3)
+print(top_3_customers)
+
+
+
+
+#5. Sales by Region for Selected Year (With Tooltip Showing Average Sale)
+
+#You grouped data by region and calculated total and average sales. A bar chart was created using Plotly, with hover tooltip showing average sales.
+
+
+selected_year = 2011
+df = Df1[Df1['year'] == selected_year]
+
+sales_by_region = df.groupby('region')['sales'].agg(['sum', 'mean']).reset_index()
+print(sales_by_region)
+
+fig = px.bar(sales_by_region, x='region', y='sum', title='Sales by Region',hover_data=['mean'])
+fig.show()
+
+
+#6. Profit by Subcategory & Category (with Avg. Profit Highlight)
+
+#Grouped data by category and sub_category, calculated total profit, and highlighted top 3 subcategories by profit within each category using a grouped bar cHART
+
+
+#Profit by Subcategory, Category for selected Year…
+# Display average Profit per Subcategory for every Category
+
+selected_year = 2012
+df = Df1[Df1['year'] == selected_year]
+
+profit_data = Df1.groupby ([ 'category', 'sub_category']) ['profit'].sum().reset_index()
+print(profit_data)
+
+top3_subcategories=profit_data.groupby("category",group_keys=False,as_index=False).\
+    apply(lambda x:x.nlargest(3,'profit')).reset_index(drop=True)
+print(top3_subcategories)
+fig=px.bar(top3_subcategories,x="sub_category",y="profit",color='category',\
+           title="Average Profit per Sub_Category for every Category ")
+fig.show()
